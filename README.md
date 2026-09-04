@@ -2,6 +2,8 @@
 
 [![npm](https://img.shields.io/npm/v/ats-boards)](https://www.npmjs.com/package/ats-boards) [![license](https://img.shields.io/npm/l/ats-boards)](LICENSE) ![node](https://img.shields.io/node/v/ats-boards)
 
+![ats-boards — discover and read the public ATS job boards of German employers](docs/preview.png)
+
 Discover and read the **public job boards** of the applicant-tracking systems German employers use — without scraping job portals.
 
 Most companies do not host their own job list. The career page embeds a board on Personio, SmartRecruiters, Greenhouse, Workday, Oracle, softgarden … and those boards expose public, keyless endpoints. This package finds the board link in a career page and reads the postings from it, in one common shape.
