@@ -52,6 +52,6 @@
     "@types/node": "^22.0.0"
   },
   "bin": {
-    "ats-boards": "./dist/cli.js"
+    "ats-boards": "dist/cli.js"
   }
 }
