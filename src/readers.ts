@@ -652,15 +652,22 @@ const WORKDAY_SAYFA = 20
    süzgeci zaten uygulanıyor, 20 sayfa = 400 ilan. */
 const WORKDAY_AZAMI_SAYFA = 20
 
-function workdayGun(v: unknown): string | undefined {
+/**
+ * Workday `postedOn` is relative text, in the site language:
+ * "Posted Today", "Posted 3 Days Ago", "Posted 30+ Days Ago",
+ * "Heute ausgeschrieben", "Vor 3 Tagen ausgeschrieben".
+ * "30+" is a floor, not a date, so it yields undefined.
+ */
+export function workdayGun(v: unknown, simdi = new Date()): string | undefined {
   const s = metin(v)?.toLowerCase()
   if (!s) return undefined
-  const simdi = new Date()
-  if (s.includes('today')) return simdi.toISOString().slice(0, 10)
-  if (s.includes('yesterday')) return new Date(simdi.getTime() - 864e5).toISOString().slice(0, 10)
-  const m = s.match(/(\d+)\+?\s*days?/)
-  if (m && m[1]) return new Date(simdi.getTime() - Number(m[1]) * 864e5).toISOString().slice(0, 10)
-  return undefined
+  const gun = (n: number) => new Date(simdi.getTime() - n * 864e5).toISOString().slice(0, 10)
+  if (/\b(today|heute)\b/.test(s)) return gun(0)
+  if (/\b(yesterday|gestern)\b/.test(s)) return gun(1)
+  const m = s.match(/(\d+)(\+?)\s*(days?|tagen?)\b/)
+  if (!m || !m[1]) return undefined
+  if (m[2] === '+') return undefined
+  return gun(Number(m[1]))
 }
 
 function workdayCalismaSuresi(v: unknown): CalismaSuresi {

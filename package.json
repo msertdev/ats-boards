@@ -1,6 +1,6 @@
 {
   "name": "ats-boards",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Discover and read public job boards of applicant-tracking systems used by German employers: Personio, SmartRecruiters, Greenhouse, Lever, Ashby, Recruitee, Teamtailor, JOIN, Workable, Workday, Oracle Recruiting, softgarden.",
   "license": "MIT",
   "author": "Murat Sert",
