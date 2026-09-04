@@ -33,6 +33,21 @@ npm i ats-boards
 
 Node 20+. No dependencies.
 
+## Try it without writing code
+
+```bash
+npx ats-boards https://www.scalable.capital/en/careers
+# Found 1 board(s): smartrecruiters/ScalableGmbH
+# smartrecruiters/ScalableGmbH: 94 posting(s) in Germany
+# (Associate) Product Manager (m/f/x)   Berlin   2026-09-03  https://jobs.smartrecruiters.com/ScalableGmbH/744000147296099
+# ...
+
+npx ats-boards greenhouse celonis          # read one board directly
+npx ats-boards workday db.wd3/DBWebsite --json > db.json
+```
+
+Discovery works on server-rendered career pages that link to the board. If a page loads its jobs with JavaScript, pass the provider and board code directly.
+
 ## Use
 
 ```ts
@@ -83,6 +98,12 @@ Field names are Turkish (the package grew inside a Turkish product); the exporte
 - List endpoints are paged up to 10 pages (20 for Workday). Workday and Oracle need one extra request per posting for the full text; those are read in a rotating window of 40 per call so a large board is covered over a day rather than in one burst.
 - Only what the provider returns is used. Nothing is inferred; if a board does not give a text, `metin` stays empty.
 - These are the same endpoints the providers' own career pages call. Check each provider's terms for your use case; this package does not bypass any authentication.
+
+## Examples
+
+- [`examples/career-page.mjs`](examples/career-page.mjs) — career page URL in, postings out
+- [`examples/to-csv.mjs`](examples/to-csv.mjs) — one board to CSV
+- [`examples/many-employers.mjs`](examples/many-employers.mjs) — several boards, keep postings with full text
 
 ## Development
 

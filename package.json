@@ -1,6 +1,6 @@
 {
   "name": "ats-boards",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Discover and read public job boards of applicant-tracking systems used by German employers: Personio, SmartRecruiters, Greenhouse, Lever, Ashby, Recruitee, Teamtailor, JOIN, Workable, Workday, Oracle Recruiting, softgarden.",
   "license": "MIT",
   "author": "Murat Sert",
@@ -38,6 +38,7 @@
   },
   "files": [
     "dist",
+    "examples",
     "README.md",
     "LICENSE"
   ],
@@ -49,5 +50,8 @@
   "devDependencies": {
     "typescript": "^5.6.0",
     "@types/node": "^22.0.0"
+  },
+  "bin": {
+    "ats-boards": "./dist/cli.js"
   }
 }
