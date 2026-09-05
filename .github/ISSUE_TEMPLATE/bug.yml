@@ -1,0 +1,55 @@
+name: Bug report
+description: Report incorrect discovery, parsing, filtering or CLI behaviour.
+title: "Bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a reproducible problem. Do not include applicant data or credentials.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 0.2.1
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Provider
+      options:
+        - Personio
+        - SmartRecruiters
+        - Greenhouse
+        - Lever
+        - Ashby
+        - Recruitee
+        - Teamtailor
+        - JOIN
+        - Workable
+        - Workday
+        - Oracle Recruiting
+        - softgarden
+        - Discovery / CLI / other
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour and minimal reproduction
+      description: Redact personal data, tokens and private URLs.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Node version, operating system, command or API used
+    validations:
+      required: true

@@ -1,6 +1,6 @@
 // Read several boards in sequence and keep only postings with full text.
 // node examples/many-employers.mjs
-import { readBoard } from 'ats-boards'
+import { readJobBoard } from 'ats-boards'
 
 const boards = [
   ['greenhouse', 'celonis'],
@@ -10,8 +10,8 @@ const boards = [
 ]
 
 for (const [provider, code] of boards) {
-  const r = await readBoard(provider, code, {})
-  if (r.durum !== 'tamam') { console.error(provider, code, r.sebep); continue }
-  const withText = r.ilanlar.filter((p) => p.metin && p.metin.length > 200)
-  console.log(`${provider}/${code}: ${r.ilanlar.length} postings, ${withText.length} with full text`)
+  const result = await readJobBoard(provider, code)
+  if (!result.ok) { console.error(provider, code, result.reason); continue }
+  const withText = result.postings.filter((posting) => posting.description && posting.description.length > 200)
+  console.log(`${provider}/${code}: ${result.postings.length} postings, ${withText.length} with full text`)
 }

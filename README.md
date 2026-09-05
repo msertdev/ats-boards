@@ -1,6 +1,6 @@
 # ats-boards
 
-[![npm](https://img.shields.io/npm/v/ats-boards)](https://www.npmjs.com/package/ats-boards) [![license](https://img.shields.io/npm/l/ats-boards)](LICENSE) ![node](https://img.shields.io/node/v/ats-boards)
+[![CI](https://github.com/msertdev/ats-boards/actions/workflows/ci.yml/badge.svg)](https://github.com/msertdev/ats-boards/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/ats-boards)](https://www.npmjs.com/package/ats-boards) [![downloads](https://img.shields.io/npm/dm/ats-boards)](https://www.npmjs.com/package/ats-boards) [![license](https://img.shields.io/npm/l/ats-boards)](LICENSE) ![node](https://img.shields.io/node/v/ats-boards)
 
 ![ats-boards — discover and read the public ATS job boards of German employers](docs/preview.png)
 
@@ -31,7 +31,7 @@ Only Germany-located postings are returned; the location filter is intentionally
 npm i ats-boards
 ```
 
-Node 20+. No dependencies.
+Node 22+. No runtime dependencies.
 
 ## Try it without writing code
 
@@ -50,53 +50,70 @@ Discovery works on server-rendered career pages that link to the board. If a pag
 
 ## Use
 
+The recommended API uses English field names. The original API remains
+available unchanged for existing users.
+
 ```ts
-import { discoverBoards, readBoard, setUserAgent } from 'ats-boards'
+import { discoverJobBoards, readJobBoard, setUserAgent } from 'ats-boards'
 
 // Identify yourself to the sites you read.
 setUserAgent('Mozilla/5.0 (compatible; MyCrawler/1.0; +https://example.com/bot)')
 
 // 1. Find boards in a career page you already fetched.
 const html = await (await fetch('https://www.example-gmbh.de/karriere')).text()
-const boards = discoverBoards(html)
-// → [{ saglayici: 'personio', kod: 'example-gmbh', url: 'https://example-gmbh.jobs.personio.de/' }]
+const boards = discoverJobBoards(html)
+// → [{ provider: 'personio', code: 'example-gmbh', url: 'https://example-gmbh.jobs.personio.de/' }]
 
 // 2. Read the postings.
 for (const b of boards) {
-  const result = await readBoard(b.saglayici, b.kod, { isveren: 'Example GmbH', alanAdi: 'example-gmbh.de' })
-  if (result.durum === 'tamam') {
-    for (const p of result.ilanlar) console.log(p.baslik, p.konumlar[0]?.sehir, p.ilanUrl)
+  const result = await readJobBoard(b.provider, b.code, {
+    employer: 'Example GmbH',
+    companyDomain: 'example-gmbh.de',
+  })
+  if (result.ok) {
+    for (const p of result.postings) console.log(p.title, p.locations[0]?.city, p.url)
   } else {
-    console.warn(result.sebep, result.mesaj) // 'erisim' | 'yetki' | 'kota' | 'bicim'
+    console.warn(result.reason, result.message)
+    // 'access' | 'permission' | 'rate_limit' | 'format'
   }
 }
 ```
 
-`readBoard` returns `{ durum: 'tamam', ilanlar: [] }` for a board that no longer exists (HTTP 404) — that is "no postings", not an error. Rate limits come back as `sebep: 'kota'`.
+`readJobBoard` returns `{ ok: true, postings: [] }` for a board that no
+longer exists (HTTP 404) — that means “no postings”, not a transport error.
+Rate limits return `{ ok: false, reason: 'rate_limit' }`.
 
 ### Posting shape
 
 ```ts
-type Posting = {
-  kaynak: string          // provider id
-  kaynakKimligi: string   // "{boardCode}:{jobId}", stable per provider
-  baslik: string
-  isveren?: string
-  konumlar: { sehir?: string; ulke: string }[]
-  metin?: string          // full text, HTML stripped (when the provider returns it)
-  calismaSuresi: 'tam_zamanli' | 'yari_zamanli' | 'vardiyali' | 'bilinmiyor'
-  yayinTarihi?: string    // YYYY-MM-DD
-  ilanUrl?: string
+type JobPosting = {
+  provider: string
+  providerPostingId: string // "{boardCode}:{jobId}", stable per provider
+  title: string
+  employer?: string
+  companyDomain?: string
+  locations: { city?: string; postalCode?: string; country: string }[]
+  occupation?: string
+  description?: string      // HTML stripped when the provider supplies it
+  employmentType: 'full_time' | 'part_time' | 'shift' | 'unknown'
+  publishedDate?: string    // YYYY-MM-DD
+  url?: string
+  annualGrossEur?: number
 }
 ```
 
-Field names are Turkish (the package grew inside a Turkish product); the exported function names are English.
+### Existing API
+
+`discoverBoards` and `readBoard` keep their original Turkish result fields for
+backward compatibility. New integrations should prefer `discoverJobBoards`
+and `readJobBoard`; `toJobPosting` converts an existing `Posting` value without
+another network request.
 
 ## Notes on behaviour
 
 - Every request has a 15 s timeout and a descriptive user agent.
 - List endpoints are paged up to 10 pages (20 for Workday). Workday and Oracle need one extra request per posting for the full text; those are read in a rotating window of 40 per call so a large board is covered over a day rather than in one burst.
-- Only what the provider returns is used. Nothing is inferred; if a board does not give a text, `metin` stays empty.
+- Only what the provider returns is used. Nothing is inferred; if a board does not give a description, that field stays empty.
 - These are the same endpoints the providers' own career pages call. Check each provider's terms for your use case; this package does not bypass any authentication.
 
 ## Examples
@@ -108,11 +125,16 @@ Field names are Turkish (the package grew inside a Turkish product); the exporte
 ## Development
 
 ```bash
-npm test            # discovery tests (offline)
-npm run build       # tsc → dist/
+npm test            # offline discovery, contract and date tests
+npm run build       # TypeScript → dist/
+npm run check       # build + complete test suite
 ```
 
 Adding a provider: a discovery rule in `src/discover.ts`, a reader in `src/readers.ts` (verify it against a real employer and note which one), and a test line in `tests/discover.test.ts`.
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the
+provider checklist and [SECURITY.md](SECURITY.md) for private vulnerability
+reporting.
 
 ## Why this exists
 

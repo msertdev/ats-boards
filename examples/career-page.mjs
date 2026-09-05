@@ -1,13 +1,13 @@
 // node examples/career-page.mjs https://www.scalable.capital/en/careers
-import { discoverBoards, readBoard } from 'ats-boards'
+import { discoverJobBoards, readJobBoard } from 'ats-boards'
 
 const url = process.argv[2] ?? 'https://www.scalable.capital/en/careers'
 const html = await (await fetch(url)).text()
 
-for (const board of discoverBoards(html)) {
-  const result = await readBoard(board.saglayici, board.kod, {})
-  if (result.durum !== 'tamam') { console.error(board, result.sebep); continue }
-  for (const p of result.ilanlar) {
-    console.log(`${p.baslik} — ${p.konumlar.map((k) => k.sehir).join(', ')} — ${p.ilanUrl}`)
+for (const board of discoverJobBoards(html)) {
+  const result = await readJobBoard(board.provider, board.code)
+  if (!result.ok) { console.error(board, result.reason); continue }
+  for (const p of result.postings) {
+    console.log(`${p.title} — ${p.locations.map((location) => location.city).join(', ')} — ${p.url}`)
   }
 }

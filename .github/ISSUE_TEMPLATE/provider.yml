@@ -1,0 +1,31 @@
+name: Provider request
+description: Propose a new public applicant-tracking board provider.
+title: "Provider: "
+labels: [provider]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider name
+    validations:
+      required: true
+  - type: input
+    id: career_page
+    attributes:
+      label: Public example career page
+      description: Use an employer page, never an applicant-specific link.
+      placeholder: https://example.com/careers
+    validations:
+      required: true
+  - type: textarea
+    id: public_endpoint
+    attributes:
+      label: Public board or endpoint
+      description: Explain what is public and whether it requires a key.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Germany filtering, pagination, rate limits or response-shape details.
